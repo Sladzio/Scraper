@@ -16,3 +16,6 @@ class LottoSpider(scrapy.Spider):
             "//div[@class='list_of_last_drawings lotto_list_of_last_drawings']/p[@class='lista_lat']/a/@href").extract()
         for url in years_url_list:
             print url
+# response.xpath("//ul/li[@class='nr_in_list']/text()").extract()
+#response.xpath("//ul/li[@class='date_in_list']/text()").extract()
+#response.xpath("//ul/li[@class='numbers_in_list ']/text()").extract()
