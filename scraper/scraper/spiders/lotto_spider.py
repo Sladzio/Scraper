@@ -7,10 +7,10 @@ from scrapy.selector import HtmlXPathSelector
 class LottoData(Item):
     lottery_nr = Field()
     date = Field()
-    winning = Field()
-    degree = Field()
-    number = Field()
-    amount = Field()
+    winning_numbers = Field()
+    level = Field()
+    winners_number = Field()
+    amount_won = Field()
 
 
 class LottoSpider(scrapy.Spider):
@@ -32,7 +32,7 @@ class LottoSpider(scrapy.Spider):
 
         lottery_numbers = response.css("ul li.nr_in_list::text").extract()
         dates = response.css("ul li.date_in_list::text").extract()
-        winning_numbers = self.parse_winning_numbers(response.css("ul li.numbers_in_list::text").re("\d+"))
+        winning = self.parse_winning_numbers(response.css("ul li.numbers_in_list::text").re("\d+"))
 
         hxs = HtmlXPathSelector(response)
 
@@ -40,27 +40,27 @@ class LottoSpider(scrapy.Spider):
                       '@class="lista_ostatnich_losowan"]/ul/a/@href').extract():
             detailed_info_urls = hxs.select('//div[@class="list_of_last_drawings lotto_list_of_last_drawings"]/div['
                                             '@class="lista_ostatnich_losowan"]/ul/a/@href').extract()
-            for l, d, w, u in zip(lottery_numbers, dates, winning_numbers, detailed_info_urls):
+            for l, d, w, u in zip(lottery_numbers, dates, winning, detailed_info_urls):
                 lotto_data = LottoData()
                 lotto_data['lottery_nr'] = re.sub('\\.', '', l)
                 lotto_data['date'] = d
-                lotto_data['winning'] = w
-                lotto_data['degree'] = ''
-                lotto_data['number'] = ''
-                lotto_data['amount'] = ''
+                lotto_data['winning_numbers'] = w
+                lotto_data['level'] = ''
+                lotto_data['winners_number'] = ''
+                lotto_data['amount_won'] = ''
                 request = scrapy.Request(u, callback=self.parse_detailed_info)
                 request.meta['lotto_data'] = lotto_data
 
                 yield request
         else:
-            for l, d, w in zip(lottery_numbers, dates, winning_numbers):
+            for l, d, w in zip(lottery_numbers, dates, winning):
                 lotto_data = LottoData()
                 lotto_data['lottery_nr'] = re.sub('\\.', '', l)
                 lotto_data['date'] = d
-                lotto_data['winning'] = w
-                lotto_data['degree'] = ''
-                lotto_data['number'] = ''
-                lotto_data['amount'] = ''
+                lotto_data['winning_numbers'] = w
+                lotto_data['level'] = ''
+                lotto_data['winners_number'] = ''
+                lotto_data['amount_won'] = ''
 
                 yield lotto_data
 
@@ -103,9 +103,9 @@ class LottoSpider(scrapy.Spider):
 
         if date == lotto_data['date']:
             for j in range(len(num_list)):
-                lotto_data['degree'] = degree_list[j]
-                lotto_data['number'] = num_list[j]
-                lotto_data['amount'] = amount_list[j]
+                lotto_data['level'] = degree_list[j]
+                lotto_data['winners_number'] = num_list[j]
+                lotto_data['amount_won'] = amount_list[j]
                 yield lotto_data
 
     def normalize_whitespace(self, str):
